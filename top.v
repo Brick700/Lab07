@@ -1,37 +1,31 @@
-module top (
-     input [7:0] sw,
-    output [5:0] led
+module top(
+    input [9:0] sw,
+    output [13:0] led
 );
 
-wire carry_bit;
+    half_sub sub(
+        .A(sw[0]), // Take the zeroth signal from switches
+        .B(sw[1]), // and the first for B
+        .Y(led[0]), // Same for LEDs, just as...
+        .Borrow(led[1]) // ... the I/O table declares
+    );
 
-light stair_light_insta(
-    .downstairs(sw[0]),
-    .upstairs(sw[1]),
-    .stair_light(led[0])
-);
+    // Things are a little more complicated for the other modules
+    // They have vector, not scalar inputs
+    ones_compliment ones(
+        .A(sw[5:2]), // Oh! But we can do this!
+        .B(sw[9:6]), // We can take an arbitrary slice of a vector
+        .Y(led[5:2]) // And assign it into our vectors
+    );
 
-adder one_bit_insta (
-    .A(sw[2]),
-    .B(sw[3]),
-    .Y(led[1]),
-    .carry(led[2])
-);
+    // Be careful with this. Make sure you do the following:
+    // - [MSB:LSB] ordering
+    // - Ensure the width of each signal matches
 
-full_adder LSB(
-    .A(sw[4]),
-    .B(sw[6]),
-    .Cin(1'b0), // Since no carry it would be 0
-    .Y(led[3]),
-    .Cout(carry_bit) //Will be carried out to next adder
-);
-
-full_adder MSB(
-    .A(sw[5]),
-    .B(sw[7]),
-    .Cin(carry_bit), // Carried from previous adder
-    .Y(led[4]),
-    .Cout(led[5])
-);
+    // And, finally:
+    twos_compliment two(
+        .A(sw[9:2]), // 8 bits!
+        .Y(led[13:6]) // 8 more bits :)
+    );
 
 endmodule

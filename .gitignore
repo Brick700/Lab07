@@ -1,9 +1,3 @@
-*.vvp
 a.out
-*.fst
-*.vcd
-!expected_output.vcd
-.venv/
-*.bkp
-*.dtmp
+dump.vcd
 __pycache__/
